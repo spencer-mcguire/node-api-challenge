@@ -72,7 +72,7 @@ router.post(
 router.put(
   "/:id",
   validateProjectId,
-  validateData("notes"),
+  validateData("name"),
   validateData("description"),
   (req, res) => {
     console.log(req.project.id, req.body);
