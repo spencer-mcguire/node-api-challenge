@@ -67,6 +67,18 @@ router.post(
 );
 
 // PUT update a project
+router.put("/:id", validateProjectId, (req, res) => {
+  console.log(req.project.id, req.body);
+  projectDb
+    .update(req.project.id, req.body)
+    .then(updated => res.status(201).json(updated))
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({
+        error_message: "Something happened when submitting a new project."
+      });
+    });
+});
 
 // DELETE remove a project
 
