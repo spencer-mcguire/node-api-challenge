@@ -23,12 +23,48 @@ router.get("/", (req, res) => {
 });
 
 // GET project by ID
-router.get("/", (req, res) => {});
+router.get("/:id", validateProjectId, (req, res) => {
+  projectDb
+    .get(req.project.id)
+    .then(project => res.status(200).json(project))
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({
+        error_message: `Something happened when fetching project ${req.project.id}.`
+      });
+    });
+});
 
 // GET actions by project
-router.get("/", (req, res) => {});
+router.get("/:id/actions", validateProjectId, (req, res) => {
+  projectDb
+    .getProjectActions(req.project.id)
+    .then(actions => res.status(200).json(actions))
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({
+        error_message: `Something happened when fetching actions for project ${req.project.id}.`
+      });
+    });
+});
 
 // POST submit a new project
+router.post(
+  "/",
+  validateData("name"),
+  validateData("description"),
+  (req, res) => {
+    projectDb
+      .insert(req.body)
+      .then(newProject => res.status(201).json(newProject))
+      .catch(err => {
+        console.log(err);
+        res.status(500).json({
+          error_message: "Something happened when submitting a new project."
+        });
+      });
+  }
+);
 
 // PUT update a project
 
@@ -57,6 +93,20 @@ function validateProjectId(req, res, next) {
         error_message: "Something happened when validating project ID."
       });
     });
+}
+
+function validateData(prop) {
+  return function(req, res, next) {
+    if (Object.entries(req.body).length === 0) {
+      res
+        .status(400)
+        .json({ message: "Missing ALL data needed to submit a new item." });
+    } else if (!req.body[prop]) {
+      res.status(400).json({ message: `Missing required ${prop} field.` });
+    } else {
+      next();
+    }
+  };
 }
 
 module.exports = router;
