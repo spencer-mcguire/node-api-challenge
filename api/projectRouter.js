@@ -1,5 +1,6 @@
 const express = require("express");
 const projectDb = require("../data/helpers/projectModel");
+const actionDb = require("../data/helpers/actionModel");
 
 const router = express.Router();
 
@@ -30,7 +31,7 @@ router.get("/:id", validateProjectId, (req, res) => {
     .catch(err => {
       console.log(err);
       res.status(500).json({
-        error_message: `Something happened when fetching project ${req.project.id}.`
+        error_message: `Something happened when fetching project: ${req.project.id}.`
       });
     });
 });
@@ -43,7 +44,7 @@ router.get("/:id/actions", validateProjectId, (req, res) => {
     .catch(err => {
       console.log(err);
       res.status(500).json({
-        error_message: `Something happened when fetching actions for project ${req.project.id}.`
+        error_message: `Something happened when fetching actions for project: ${req.project.id}.`
       });
     });
 });
@@ -75,14 +76,44 @@ router.put("/:id", validateProjectId, (req, res) => {
     .catch(err => {
       console.log(err);
       res.status(500).json({
-        error_message: "Something happened when submitting a new project."
+        error_message: `Something happened when updating project: ${req.project.id}.`
       });
     });
 });
 
 // DELETE remove a project
+router.delete("/:id", validateProjectId, (req, res) => {
+  projectDb
+    .remove(req.project.id)
+    .then(records =>
+      res.status(200).json({ records_deleted: records, deleted: req.project })
+    )
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({
+        error_message: `Something happened when deleting project: ${req.project.id}.`
+      });
+    });
+});
 
 // POST submit a new action for a project
+router.post(
+  "/:id/actions",
+  validateProjectId,
+  validateData("description"),
+  validateData("notes"),
+  (req, res) => {
+    actionDb
+      .insert({ project_id: req.project.id, ...req.body })
+      .then(newAction => res.status(201).json(newAction))
+      .catch(err => {
+        console.log(err);
+        res.status(500).json({
+          error_message: `Something happened when adding an action for project: ${req.project.id}.`
+        });
+      });
+  }
+);
 
 //////// CUSTOM MIDDLEWARE ////////
 
