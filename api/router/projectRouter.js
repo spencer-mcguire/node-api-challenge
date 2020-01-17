@@ -1,6 +1,7 @@
 const express = require("express");
-const projectDb = require("../data/helpers/projectModel");
-const actionDb = require("../data/helpers/actionModel");
+const validateData = require("../custom middleware/validateData");
+const projectDb = require("../../data/helpers/projectModel");
+const actionDb = require("../../data/helpers/actionModel");
 
 const router = express.Router();
 
@@ -136,20 +137,6 @@ function validateProjectId(req, res, next) {
         error_message: "Something happened when validating project ID."
       });
     });
-}
-
-function validateData(prop) {
-  return function(req, res, next) {
-    if (Object.entries(req.body).length === 0) {
-      res
-        .status(400)
-        .json({ message: "Missing ALL data needed to submit a new item." });
-    } else if (!req.body[prop]) {
-      res.status(400).json({ message: `Missing required ${prop} field.` });
-    } else {
-      next();
-    }
-  };
 }
 
 module.exports = router;

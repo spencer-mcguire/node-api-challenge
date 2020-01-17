@@ -1,7 +1,9 @@
 const express = require("express");
 const helmet = require("helmet");
+const logger = require("./custom middleware/logger");
 
-const projectRouter = require("./projectRouter");
+const projectRouter = require("./router/projectRouter");
+const actionRouter = require("./router/actionRouter");
 
 const server = express();
 
@@ -10,12 +12,7 @@ server.use(helmet());
 server.use(logger);
 
 server.use("/api/projects", projectRouter);
-
-function logger(req, res, next) {
-  const { method, originalUrl } = req;
-  console.log(`${method} on ${originalUrl} at ${Date()}`);
-  next();
-}
+server.use("/api/actions", actionRouter);
 
 server.get("/", (req, res) => {
   res.send("API is running");
